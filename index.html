@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todolist</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffd166; /* 배경색을 노란색으로 설정 */
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px; /* 입력창과 출력창의 최대 너비 설정 */
+        }
+
+        .container form {
+            display: flex;
+            justify-content: space-between; /* 입력창과 버튼을 오른쪽으로 정렬 */
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .container input[type="text"] {
+            flex: 1; /* 입력창이 가능한 최대 너비를 가지도록 설정 */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            resize: none; /* 사용자가 입력 창의 크기를 조절하지 못하도록 설정 */
+            overflow-y: auto; /* 입력 창 내용이 넘칠 경우 스크롤 표시 */
+            max-height: 150px; /* 최대 높이 설정 */
+        }
+
+        .container button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .container button:hover {
+            background-color: #45a049;
+        }
+
+        .container ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left; /* 출력창 내용을 왼쪽 정렬 */
+        }
+
+        .container li {
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            position: relative; /* Delete 버튼을 상대적으로 위치 지정 */
+            word-wrap: break-word; /* 긴 문장이 출력 창을 넘어가면 줄 바꿈 처리 */
+        }
+
+        .container button.delete {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .container button.delete:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todolist</h1>
+        <form action="/add" method="POST">
+            <input type="text" name="task" placeholder="Enter task" required>
+            <button type="submit">Add Task</button>
+        </form>
+        <ul id="tasks"></ul>
+    </div>
+    <script>
+        async function fetchTasks() {
+            const response = await fetch('/tasks');
+            const tasks = await response.json();
+            const tasksList = document.getElementById('tasks');
+            tasksList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.textContent = task;
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete');
+                deleteButton.addEventListener('click', async () => {
+                    await fetch(`/delete/${index}`, { method: 'DELETE' });
+                    fetchTasks();
+                });
+                li.appendChild(deleteButton);
+                tasksList.appendChild(li);
+            });
+        }
+        fetchTasks();
+    </script>
+</body>
+</html>
